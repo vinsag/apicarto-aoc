@@ -9,7 +9,7 @@ function FeatureCollection() {
 function in_aoc(geojson) {
   console.log(geojson);
   var query = format("SELECT  st_asgeojson(st_transform(p.geom, 4326)) as geom, ST_AREA(ST_INTERSECTION(d.geom, st_transform(p.geom, 4326))) as area, appellatio, id_uni \
-                  FROM aop_test as p,\
+                  FROM Appellation as p,\
                     (SELECT ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326) geom) d\
                   WHERE ST_Intersects(st_transform(p.geom, 4326), d.geom) LIMIT 50;", geojson.geometry);
   console.log(query)
@@ -25,7 +25,7 @@ where st_intersects(d.geom , st_transform(Appellation.geom, 4326)) LIMIT 50;", b
 }
 
 exports.in = function(request, reply) {
-  
+
   var payload = request.payload.geom;
   var geojson = JSON.parse(payload);
   var sql = in_aoc(geojson);
