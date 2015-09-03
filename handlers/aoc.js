@@ -6,53 +6,76 @@ function FeatureCollection() {
   this.features = new Array();
 }
 
-function in_aoc(geojson) {
-  console.log(geojson);
-  var query = format("SELECT  st_asgeojson(st_transform(p.geom, 4326)) as geom, ST_AREA(ST_INTERSECTION(d.geom, st_transform(p.geom, 4326))) as area, appellatio, id_uni \
+function in_aoc_geom(geometry) {
+  var query = format("SELECT  \
+                        st_asgeojson(ST_TRANSFORM(p.geom, 4326)) as geom, \
+                        ST_AREA(ST_INTERSECTION(d.geom, p.geom)) as area, appellatio, id_uni, \
+                        ST_CONTAINS(d.geom, p.geom) as contains\
                   FROM Appellation as p,\
-                    (SELECT ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326) geom) d\
-                  WHERE ST_Intersects(st_transform(p.geom, 4326), d.geom) LIMIT 50;", geojson.geometry);
-  console.log(query)
+                    (SELECT ST_TRANSFORM(ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326), 2154) geom) d\
+                  WHERE ST_Intersects(p.geom, d.geom);", geometry);
   return query;
 }
+
+function in_aoc_nogeom(geometry) {
+  var query = format("SELECT \
+                        ST_AREA(ST_INTERSECTION(d.geom, p.geom)) as area, appellatio, id_uni, \
+                        ST_CONTAINS(p.geom, d.geom) as contains\
+                  FROM Appellation as p,\
+                    (SELECT ST_TRANSFORM(ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326), 2154) geom) d\
+                  WHERE ST_Intersects(p.geom, d.geom);", geometry);
+  return query;
+}
+
 
 function bbox_aoc(bbox) {
   var query = format("select st_asgeojson(st_transform(Appellation.geom, 4326)) as geom, id_uni, appellatio, commune \
 from Appellation, (select st_makeenvelope(%s, %s, %s, %s, 4326) geom) d \
 where st_intersects(d.geom , st_transform(Appellation.geom, 4326)) LIMIT 50;", bbox[0], bbox[1], bbox[2], bbox[3])
-  console.log(query);
   return query
 }
 
 exports.in = function(request, reply) {
-
-  var payload = request.payload.geom;
-  var geojson = JSON.parse(payload);
-  var sql = in_aoc(geojson);
+  var geojson_payload = request.payload.geom;
+  var geojson = JSON.parse(geojson_payload);
+  console.log(request.payload);
+  if (request.payload.geojson == 'false') {
+    var sql = in_aoc_nogeom(geojson.geometry);
+  } else {
+    var sql = in_aoc_geom(geojson.geometry);
+  }
   request.pg.client.query(sql, function(err, result) {
 
     if (err) {
       throw err;
     }
-    var featureCollection = new FeatureCollection();
+
     if (result.rows == undefined) {
       return reply({
         status: 'No Data'
       }).code(404).header('access-control-allow-origin', '*')
     }
-    for (var i = 0; i < result.rows.length; i++) {
-      featureCollection.features[i] = {
-        type: "Feature",
-        geometry: JSON.parse(result.rows[i].geom),
-        properties: {
-          area_inter: result.rows[i].area,
-          appellation: result.rows[i].appellatio,
-          id_uni: result.rows[i].id_uni,
+    if (request.payload.geojson == 'false') {
+      reply(result.rows)
+        .header('access-control-allow-origin', '*')
+    } else {
+      var featureCollection = new FeatureCollection();
+
+      for (var i = 0; i < result.rows.length; i++) {
+        featureCollection.features[i] = {
+          type: "Feature",
+          geometry: JSON.parse(result.rows[i].geom),
+          properties: {
+            area_inter: result.rows[i].area,
+            appellation: result.rows[i].appellatio,
+            id_uni: result.rows[i].id_uni,
+            contains : result.rows[i].contains
+          }
         }
       }
+      reply(featureCollection)
+        .header('access-control-allow-origin', '*')
     }
-    reply(featureCollection)
-      .header('access-control-allow-origin', '*')
   })
 }
 exports.bbox = function(request, reply) {
