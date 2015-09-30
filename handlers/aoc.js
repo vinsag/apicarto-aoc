@@ -13,8 +13,20 @@ function in_aoc_geom(geometry) {
                         ST_CONTAINS(d.geom, p.geom) as contains\
                   FROM Appellation as p,\
                     (SELECT ST_TRANSFORM(ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326), 2154) geom) d\
-                  WHERE ST_Intersects(p.geom, d.geom);", geometry);
+                  WHERE ST_INTERSECTS(p.geom, d.geom);", geometry);
   return query;
+}
+
+function in_aoc_geom_com(geometry){
+  var query = format("select st_asgeojson(ST_TRANSFORM(appellation.geom, 4326)) as geom, \
+                        ST_AREA(ST_INTERSECTION(com.geom, appellation.geom)) as area, appellatio, id_uni, \
+                        ST_CONTAINS(com.geom, appellation.geom) as contains from \
+(SELECT                   c.nom , insee  , st_transform(d.geom, 2154) as geom \
+FROM Communes as c, \
+ (SELECT ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326) geom) d \
+WHERE ST_Intersects(c.geom, d.geom)) as com, appellation \
+where com.insee=appellation.insee;", geometry)
+return query;
 }
 
 function in_aoc_nogeom(geometry) {
@@ -42,7 +54,12 @@ exports.in = function(request, reply) {
   if (request.payload.geojson == 'false') {
     var sql = in_aoc_nogeom(geojson.geometry);
   } else {
-    var sql = in_aoc_geom(geojson.geometry);
+    if (request.payload.communes == 'false'){
+      var sql = in_aoc_geom(geojson.geometry);
+    }
+    else{
+      var sql = in_aoc_geom_com(geojson.geometry)
+    }
   }
   request.pg.client.query(sql, function(err, result) {
 

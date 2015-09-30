@@ -19,6 +19,7 @@
     "pg-native": "1.8.0",
     "proj4": "2.3.5",
     "terraformer-wkt-parser": "",
-    "turf": "2.0.2"
+    "turf": "2.0.2",
+    "wkx": "^0.1.0"
   }
 }
