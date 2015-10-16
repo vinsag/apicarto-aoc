@@ -21,6 +21,7 @@
     "terraformer-wkt-parser": "",
     "turf": "2.0.2",
     "wkx": "^0.1.0",
-    "pg-format": "~0.1.4"
+    "pg-format": "~0.1.4",
+    "split": "~1.0.0"
   }
 }
