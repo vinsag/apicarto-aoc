@@ -2,8 +2,8 @@
     "dbConfig": {
       "host": "localhost",
       "port": 5432,
-      "user":"nabil",
-      "password":"lala",
+      "user":"MBorne",
+      "password":"chamo123579",
       "dbName": "apicarto-aoc"
     }
 }
