@@ -8,7 +8,7 @@ function FeatureCollection() {
 function in_aoc_geom(geometry) {
   var query = format('SELECT  \
                         st_asgeojson(ST_TRANSFORM(p.geom, 4326)) as geom, \
-                        ST_AREA(ST_INTERSECTION(d.geom, p.geom)) as area, appellatio, id_uni, \
+                        ST_AREA(ST_INTERSECTION(d.geom, p.geom)) as area, appellation, id_uni, \
                         ST_CONTAINS(d.geom, p.geom) as contains\
                   FROM Appellation as p,\
                     (SELECT ST_TRANSFORM(ST_SetSRID(ST_GeomFromGeoJSON(\'%s\'), 4326), 2154) geom) d\
@@ -18,7 +18,7 @@ function in_aoc_geom(geometry) {
 
 function in_aoc_geom_com(geometry){
   var query = format('select st_asgeojson(ST_TRANSFORM(appellation.geom, 4326)) as geom, \
-                        ST_AREA(ST_INTERSECTION(com.geom, appellation.geom)) as area, appellatio, id_uni, \
+                        ST_AREA(ST_INTERSECTION(com.geom, appellation.geom)) as area, appellation, id_uni, \
                         ST_CONTAINS(com.geom, appellation.geom) as contains from \
 (SELECT                   c.nom , insee  , st_transform(d.geom, 2154) as geom \
 FROM Communes as c, \
@@ -30,7 +30,7 @@ return query;
 
 function in_aoc_nogeom(geometry) {
   var query = format('SELECT \
-                        ST_AREA(ST_INTERSECTION(d.geom, p.geom)) as area, appellatio, id_uni, \
+                        ST_AREA(ST_INTERSECTION(d.geom, p.geom)) as area, appellation, id_uni, \
                         ST_CONTAINS(p.geom, d.geom) as contains\
                   FROM Appellation as p,\
                     (SELECT ST_TRANSFORM(ST_SetSRID(ST_GeomFromGeoJSON(\'%s\'), 4326), 2154) geom) d\
@@ -40,7 +40,7 @@ function in_aoc_nogeom(geometry) {
 
 
 function bbox_aoc(bbox) {
-  var query = format('select st_asgeojson(st_transform(Appellation.geom, 4326)) as geom, id_uni, appellatio, commune \
+  var query = format('select st_asgeojson(st_transform(Appellation.geom, 4326)) as geom, id_uni, appellation, commune \
 from Appellation, (select st_makeenvelope(%s, %s, %s, %s, 4326) geom) d \
 where st_intersects(d.geom , st_transform(Appellation.geom, 4326)) LIMIT 50;', bbox[0], bbox[1], bbox[2], bbox[3]);
   return query;
@@ -84,7 +84,7 @@ exports.in = function(request, reply) {
           geometry: JSON.parse(result.rows[i].geom),
           properties: {
             area_inter: result.rows[i].area,
-            appellation: result.rows[i].appellatio,
+            appellation: result.rows[i].appellation,
             id_uni: result.rows[i].id_uni,
             contains : result.rows[i].contains
           }
@@ -116,7 +116,7 @@ exports.bbox = function(request, reply) {
         geometry: JSON.parse(result.rows[i].geom),
         properties: {
           commune: result.rows[i].commune,
-          appellation: result.rows[i].appellatio,
+          appellation: result.rows[i].appellation,
           id_uni: result.rows[i].id_uni
         }
       };
