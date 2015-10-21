@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint handlers/**/*.js *.js",
     "test": "./node_modules/lab/bin/lab -c"
   },
   "author": "Nabil Servais (SGMAP)",
@@ -27,7 +28,10 @@
     "wkx": "^0.1.0",
     "joi": "6.9.0",
     "config": "1.16.0",
-    "util":"0.10.3",
+    "util": "0.10.3",
     "split": "~1.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^1.7.2"
   }
 }
