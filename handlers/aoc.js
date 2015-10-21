@@ -1,5 +1,6 @@
 var turf = require('turf');
 var format = require('pg-format');
+var split = require('split');
 
 function FeatureCollection() {
   this.type = 'FeatureCollection';
