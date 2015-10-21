@@ -1,0 +1,13 @@
+{
+    "apps": [
+        {
+            "name": "apicarto-aoc",
+            "script": "index.js",
+            "exec_mode": "fork",
+            "instances": 1,
+            "env": {
+
+            },
+        }
+    ]
+}
