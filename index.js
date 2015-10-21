@@ -17,7 +17,7 @@ var plugin = {
     options: {
         connectionString: 'postgres://'+config.dbConfig.user+ ':' + config.dbConfig.password +'@localhost/apicarto-aoc',
         native: true
-    },
+    }
 };
 
 server.register(plugin, function (err) {
