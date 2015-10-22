@@ -1,7 +1,7 @@
 var Hapi = require('hapi');
 var config = require('./config/default.json');
 var server = new Hapi.Server();
-server.connection({ host: 'localhost', port:'8091' });
+server.connection({ host: 'localhost', port: config.app.port });
 
 var options = {
     opsInterval: 1000,
