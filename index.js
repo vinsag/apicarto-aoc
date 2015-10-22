@@ -15,7 +15,7 @@ var options = {
 var plugin = {
     register: require('hapi-node-postgres'),
     options: {
-        connectionString: 'postgres://'+config.dbConfig.user+ ':' + config.dbConfig.password +'@localhost/apicarto-aoc'
+        connectionString: config.dbConfig.connectionString
     }
 };
 

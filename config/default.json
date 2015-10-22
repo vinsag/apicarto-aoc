@@ -3,10 +3,6 @@
         "port": 8091
     },
     "dbConfig": {
-      "host": "localhost",
-      "port": 5432,
-      "user":"MBorne",
-      "password":"chamo123579",
-      "dbName": "apicarto-aoc"
+      "connectionString": "postgres://localhost/apicarto-aoc"
     }
 }
