@@ -15,10 +15,12 @@ psql -d "apicarto-aoc" -c "CREATE EXTENSION postgis"
 
 ## Table appellation
 
-```
-ogr2ogr -overwrite -f "ESRI Shapefile" data/Appellation.shp data/Appellation.TAB
-shp2pgsql -d -g geom -s 2154 -W CP1252 data/Appellation.shp appellation > data/Appellation.sql
-psql --quiet -d apicarto-aoc -f data/Appellation.sql
+```sh
+# Si GDAL avec support de PostgreSQL
+PGCLIENTENCODING=LATIN1 ogr2ogr -overwrite -f PostgreSQL PG:dbname='apicarto-aoc' data/Appellation.TAB Appellation -lco PG_USE_COPY=YES
+
+# Sinon
+ogr2ogr --config PG_USE_COPY YES -f PGDump /vsistdout/ data/Appellation.TAB -lco DROP_TABLE=IF_EXISTS -lco SRID=2154 | PGCLIENTENCODING=LATIN1 psql -d apicarto-aoc -f -
 ```
 
 TODO GEOM_TYPE=MultiPolygon?
