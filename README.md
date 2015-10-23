@@ -49,11 +49,8 @@ node index.js
 # "Tester" le service
 
 ```
-curl -X POST -F "geom=@tests/geom1.geojson" http://localhost:8091/aoc/api/beta/aoc/in > features.geojson
+curl -X POST -H "Content-Type: application/json" --data-binary @tests/test1.json http://localhost:8091/aoc/api/beta/aoc/in
 ```
-
-(features.geojson est une FeatureCollection)
-
 
 # Requête :
 
