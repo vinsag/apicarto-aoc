@@ -3,16 +3,23 @@
   "version": "0.1.0",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint handlers/**/*.js *.js",
-    "test": "./node_modules/lab/bin/lab -c"
+    "lint": "eslint controllers/**/*.js *.js",
+    "start": "node server"
   },
-  "author": "Nabil Servais (SGMAP)",
+  "contributors": [
+    "Jérôme Desboeufs <jerome.desboeufs@data.gouv.fr>",
+    "Nabil Servais <nabil.servais@modernisation.gouv.fr>",
+    "Vincent Sagniez <vincent.sagniez@ign.fr>",
+    "Mickael Borne <mickael.borne@ign.fr>"
+  ],
   "license": "AGPL-3.0",
   "dependencies": {
-    "hapi": "8.8.1",
-    "hapi-node-postgres": "2.1.1",
-    "good": "6.4.0",
-    "good-console": "5.1.0",
+    "body-parser": "^1.14.1",
+    "cors": "^2.7.1",
+    "express": "^4.13.3",
+    "lodash": "^3.10.1",
+    "morgan": "^1.6.1",
+    "pg": "^4.4.3",
     "pg-format": "0.1.4"
   },
   "devDependencies": {
