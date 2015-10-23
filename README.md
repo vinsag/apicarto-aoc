@@ -17,21 +17,20 @@ psql -d "apicarto-aoc" -c "CREATE EXTENSION postgis"
 
 ```sh
 # Si GDAL avec support de PostgreSQL
-PGCLIENTENCODING=LATIN1 ogr2ogr -overwrite -f PostgreSQL PG:dbname='apicarto-aoc' data/Appellation.TAB Appellation -lco PG_USE_COPY=YES
+PGCLIENTENCODING=LATIN1 ogr2ogr -overwrite -a_srs EPSG:2154 -f PostgreSQL PG:dbname='apicarto-aoc' data/Appellation.TAB Appellation -lco PG_USE_COPY=YES -lco GEOMETRY_NAME=geom
 
 # Sinon
-ogr2ogr --config PG_USE_COPY YES -f PGDump /vsistdout/ data/Appellation.TAB -lco DROP_TABLE=IF_EXISTS -lco SRID=2154 | PGCLIENTENCODING=LATIN1 psql -d apicarto-aoc -f -
+ogr2ogr --config PG_USE_COPY YES -f PGDump /vsistdout/ data/Appellation.TAB -lco DROP_TABLE=IF_EXISTS -lco SRID=2154 -lco GEOMETRY_NAME=geom  | PGCLIENTENCODING=LATIN1 psql -d apicarto-aoc -f -
 ```
-
-TODO GEOM_TYPE=MultiPolygon?
-
-Voir [http://www.gdal.org/drv_pgdump.html](PGDUMP) pour plus de détail
 
 ## Table communes
 
-```
-shp2pgsql -d -g geom -s 4326 data/communes-20150101-5m.shp communes > data/communes.sql
-psql --quiet -d apicarto-aoc -f data/communes.sql
+```sh
+# Si GDAL avec support de PostgreSQL
+ogr2ogr -overwrite -a_srs EPSG:4326 -f PostgreSQL PG:dbname='apicarto-aoc' data/communes-20150101-5m.shp -lco PG_USE_COPY=YES -lco GEOMETRY_NAME=geom -nlt PROMOTE_TO_MULTI -nln communes -select insee,nom
+
+# Sinon
+ogr2ogr --config PG_USE_COPY YES -f PGDump /vsistdout/ data/communes-20150101-5m.shp -lco DROP_TABLE=IF_EXISTS -lco SRID=4326 -lco GEOMETRY_NAME=geom  -nlt PROMOTE_TO_MULTI -nln communes -select insee,nom | psql -d apicarto-aoc -f -
 ```
 
 
