@@ -17,10 +17,10 @@ psql -d "apicarto-aoc" -c "CREATE EXTENSION postgis"
 
 ```sh
 # Si GDAL avec support de PostgreSQL
-PGCLIENTENCODING=LATIN1 ogr2ogr -overwrite -a_srs EPSG:2154 -f PostgreSQL PG:dbname='apicarto-aoc' data/Appellation.TAB Appellation -lco PG_USE_COPY=YES -lco GEOMETRY_NAME=geom
+PGCLIENTENCODING=LATIN1 ogr2ogr -overwrite -t_srs EPSG:4326 -a_srs EPSG:4326 -f PostgreSQL PG:dbname='apicarto-aoc' data/Appellation.TAB Appellation -lco PG_USE_COPY=YES -lco GEOMETRY_NAME=geom
 
 # Sinon
-ogr2ogr --config PG_USE_COPY YES -f PGDump /vsistdout/ data/Appellation.TAB -lco DROP_TABLE=IF_EXISTS -lco SRID=2154 -lco GEOMETRY_NAME=geom  | PGCLIENTENCODING=LATIN1 psql -d apicarto-aoc -f -
+ogr2ogr --config PG_USE_COPY YES -t_srs EPSG:4326 -f PGDump /vsistdout/ data/Appellation.TAB -lco DROP_TABLE=IF_EXISTS -lco SRID=4326 -lco GEOMETRY_NAME=geom  | PGCLIENTENCODING=LATIN1 psql -d apicarto-aoc -f -
 ```
 
 ## Table communes
@@ -60,15 +60,7 @@ Les paramètres sont des Feature GeoJSON avec des géométries en coordonnées?
 Note pour récupérer une géométrie de test :
 
 ```
-SELECT ST_AsGeoJSON(
-    ST_Transform(
-        ST_SetSRID(
-            ST_Buffer(ST_Centroid(geom),50.0),
-            2154
-        ),
-        4326
-    ))
-FROM appellation LIMIT 1
+SELECT ST_AsGeoJSON(ST_Buffer(ST_Centroid(geom), 50.0)) FROM appellation LIMIT 1
 ```
 
 =>
@@ -83,7 +75,6 @@ La feature associée :
 
 # TODO
 
-* Monter les géométries en coordonnées EPSG:4326
 * Vérifier les encodages des caractères (UTF-8 en sortie des services)
 * config/default.json.dist (l'autre en .gitignore)
 * Des tests
