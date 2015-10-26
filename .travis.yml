@@ -1,0 +1,19 @@
+language: node_js
+
+node_js:
+  - "v4"
+
+dist: trusty
+
+sudo: required
+
+addons:
+  postgresql: "9.4"
+
+before_script:
+  - sudo apt-get update
+  - sudo apt-get install -y gdal-bin postgis postgresql-9.4-postgis-2.1
+  - psql -c "CREATE DATABASE apicarto;" -U postgres
+  - psql -c "CREATE EXTENSION postgis;" -U postgres
+
+script: "npm run lint"
