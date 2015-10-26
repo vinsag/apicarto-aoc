@@ -31,16 +31,8 @@ var inQuery = Handlebars.compile(`
         {{/if}}
 `);
 
-function in_aoc_geom(geometry) {
-    return format(inQuery({ withGeometries: true, searchInCommunes: false }), geometry);
-}
-
-function in_aoc_geom_com(geometry) {
-    return format(inQuery({ withGeometries: true, searchInCommunes: true }), geometry);
-}
-
-function in_aoc_nogeom(geometry) {
-    return format(inQuery({ withGeometries: false, searchInCommunes: false }), geometry);
+function buildSQLQuery(options) {
+    return format(inQuery(options), options.geometry);
 }
 
 function bbox_aoc(bbox) {
@@ -59,23 +51,16 @@ function bbox_aoc(bbox) {
 }
 
 exports.in = function(req, res, next) {
-    if (req.body.geom) {
-        var geom = req.body.geom.geometry;
-    } else {
+    if (!req.body.geom) {
         res.sendStatus(400);
         return next();
     }
 
-    var sql;
-    if (req.body.geojson === false) {
-        sql = in_aoc_nogeom(geom);
-    } else if (req.body.communes === false){
-        sql = in_aoc_geom(geom);
-    } else {
-        sql = in_aoc_geom_com(geom);
-    }
-
-    req.pgClient.query(sql, function(err, result) {
+    req.pgClient.query(buildSQLQuery({
+        geometry: req.body.geom.geometry,
+        withGeometries: req.body.geojson !== false,
+        searchInCommunes: req.body.communes !== false
+    }), function(err, result) {
         req.pgEnd();
         if (err) return next(err);
 
