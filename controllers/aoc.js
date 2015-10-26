@@ -1,57 +1,46 @@
 var format = require('pg-format');
 var _ = require('lodash');
+var Handlebars = require('handlebars');
 
-function in_aoc_geom(geometry) {
-    return format(`
+var inQuery = Handlebars.compile(`
         SELECT
-            ST_AsGeoJSON(p.geom) AS geom,
-            ST_AREA(ST_INTERSECTION(d.geom, p.geom)) AS area,
+            {{#if withGeometries}}ST_AsGeoJSON(appellation.geom) AS geom,{{/if}}
+            ST_AREA(ST_INTERSECTION(input_geom, appellation.geom)) AS area,
             appellation,
             id_uni,
-            ST_CONTAINS(d.geom, p.geom) AS contains
-        FROM
-            Appellation AS p,
-            (SELECT ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326) geom) d
-        WHERE ST_INTERSECTS(p.geom, d.geom);`
-    , geometry);
-}
-
-function in_aoc_geom_com(geometry) {
-    return format(`
-        SELECT
-            ST_AsGeoJSON(appellation.geom) AS geom,
-            ST_AREA(ST_INTERSECTION(com.geom, appellation.geom)) AS area,
-            appellation,
-            id_uni,
-            ST_CONTAINS(com.geom, appellation.geom) AS contains
+            ST_CONTAINS(input_geom, appellation.geom) AS contains
+        {{#if searchInCommunes}}
         FROM
             (
                 SELECT
-                    c.nom,
-                    insee,
-                    d.geom AS geom
+                    communes.insee,
+                    input.geom AS input_geom
 
                 FROM
-                    Communes AS c,
-                    (SELECT ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326) geom) d
-                WHERE ST_Intersects(c.geom, d.geom)
-            ) AS com,
+                    communes,
+                    (SELECT ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326) geom) input
+                WHERE ST_Intersects(communes.geom, input.geom)
+            ) AS matching_communes,
             appellation
-        WHERE com.insee=appellation.insee;`
-    , geometry);
+        WHERE matching_communes.insee = appellation.insee;
+        {{else}}
+        FROM
+            appellation,
+            (SELECT ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326) input_geom) input
+        WHERE ST_Intersects(appellation.geom, input.input_geom);
+        {{/if}}
+`);
+
+function in_aoc_geom(geometry) {
+    return format(inQuery({ withGeometries: true, searchInCommunes: false }), geometry);
+}
+
+function in_aoc_geom_com(geometry) {
+    return format(inQuery({ withGeometries: true, searchInCommunes: true }), geometry);
 }
 
 function in_aoc_nogeom(geometry) {
-    return format(`
-        SELECT
-            ST_AREA(ST_INTERSECTION(d.geom, p.geom)) AS area,
-            appellation,
-            id_uni,
-            ST_CONTAINS(p.geom, d.geom) AS contains
-        FROM
-            Appellation AS p,
-            (SELECT ST_SetSRID(ST_GeomFromGeoJSON('%s'), 4326) geom) d
-        WHERE ST_Intersects(p.geom, d.geom);`, geometry);
+    return format(inQuery({ withGeometries: false, searchInCommunes: false }), geometry);
 }
 
 function bbox_aoc(bbox) {
