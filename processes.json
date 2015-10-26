@@ -2,8 +2,8 @@
     "apps": [
         {
             "name": "apicarto-aoc",
-            "script": "index.js",
-            "exec_mode": "fork",
+            "script": "server.js",
+            "exec_mode": "cluster",
             "instances": 1
         }
     ]
