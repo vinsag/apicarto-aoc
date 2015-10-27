@@ -1,19 +1,21 @@
-# Installation des dépendances
+# apiCarto AOC [![Build Status](https://travis-ci.org/sgmap/apicarto-aoc.svg)](https://travis-ci.org/sgmap/apicarto-aoc)
+
+## Installation des dépendances
 
 ```
 npm install
 ```
 
-# Création de la base de données
+## Création de la base de données
 
 ```
 createdb "apicarto-aoc"
 psql -d "apicarto-aoc" -c "CREATE EXTENSION postgis"
 ```
 
-# Chargement des données
+## Chargement des données
 
-## Table appellation
+### Table appellation
 
 ```sh
 # Si GDAL avec support de PostgreSQL
@@ -23,7 +25,7 @@ PGCLIENTENCODING=LATIN1 ogr2ogr -overwrite -t_srs EPSG:4326 -a_srs EPSG:4326 -f 
 ogr2ogr --config PG_USE_COPY YES -t_srs EPSG:4326 -f PGDump /vsistdout/ data/Appellation.TAB -lco DROP_TABLE=IF_EXISTS -lco SRID=4326 -lco GEOMETRY_NAME=geom  | PGCLIENTENCODING=LATIN1 psql -d apicarto-aoc -f -
 ```
 
-## Table communes
+### Table communes
 
 ```sh
 # Si GDAL avec support de PostgreSQL
@@ -34,25 +36,25 @@ ogr2ogr --config PG_USE_COPY YES -f PGDump /vsistdout/ data/communes-20150101-5m
 ```
 
 
-# Configurer le service
+## Configurer le service
 
 
 Voir config/default.json pour les paramètres de la BDD
 
 
-# Lancer le service
+## Lancer le service
 
 ```
 node index.js
 ```
 
-# "Tester" le service
+## "Tester" le service
 
 ```
 curl -X POST -H "Content-Type: application/json" --data-binary @tests/test1.json http://localhost:8091/aoc/api/beta/aoc/in
 ```
 
-# Requête :
+## Requête :
 
 Les paramètres sont des Feature GeoJSON avec des géométries en coordonnées?
 
@@ -73,7 +75,7 @@ La feature associée :
 }
 
 
-# TODO
+## TODO
 
 * Vérifier les encodages des caractères (UTF-8 en sortie des services)
 * config/default.json.dist (l'autre en .gitignore)
