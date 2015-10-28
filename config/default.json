@@ -1,8 +1,0 @@
-{
-    "app": {
-        "port": 8091
-    },
-    "dbConfig": {
-      "connectionString": "postgres://localhost/apicarto-aoc"
-    }
-}
